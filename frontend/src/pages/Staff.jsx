@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 import api from '../services/api';
 
 export default function Staff() {
@@ -15,19 +15,13 @@ export default function Staff() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold text-gray-800">Salon App</Link>
-        <div className="flex gap-4">
-          <Link to="/services" className="text-gray-600 hover:text-gray-900">Services</Link>
-          <Link to="/staff" className="text-gray-600 hover:text-gray-900">Staff</Link>
-        </div>
-      </nav>
-
+      <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Our Staff</h2>
-
         {loading ? (
           <p className="text-gray-500">Loading...</p>
+        ) : staff.length === 0 ? (
+          <p className="text-gray-500">No staff available.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {staff.map((member) => (

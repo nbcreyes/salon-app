@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import Navbar from '../components/Navbar';
 
 const STEPS = ['Service', 'Staff', 'Date & Time', 'Confirm'];
 
@@ -57,15 +58,9 @@ export default function Book() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <span
-          onClick={() => navigate('/')}
-          className="text-xl font-bold text-gray-800 cursor-pointer"
-        >
-          Salon App
-        </span>
+      <Navbar className="bg-white shadow px-6 py-4 flex justify-between items-center">
         <span className="text-sm text-gray-500">Hi, {user?.name}</span>
-      </nav>
+      </Navbar>
 
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="flex items-center justify-between mb-10">
