@@ -1,36 +1,82 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { useAuth } from '../context/AuthContext';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../context/AuthContext";
+import { colors } from "../theme";
 
 export default function AccountScreen({ navigation }) {
   const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
-  };
+  const menuItems = [
+    {
+      icon: "calendar-outline",
+      label: "My Bookings",
+      onPress: () => navigation.navigate("BookingsHistory"),
+    },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.heading}>Account</Text>
+      <View style={styles.header}>
+        <Text style={styles.eyebrow}>YOUR PROFILE</Text>
+        <Text style={styles.heading}>Account</Text>
+      </View>
 
-      <View style={styles.card}>
-        <Text style={styles.name}>{user?.name}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
+      <View style={styles.profileCard}>
+        <View style={styles.avatarRow}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{user?.name?.charAt(0)}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.name}>{user?.name}</Text>
+            <View style={styles.emailRow}>
+              <Ionicons name="mail-outline" size={12} color={colors.textDim} />
+              <Text style={styles.email}>{user?.email}</Text>
+            </View>
+          </View>
+        </View>
         <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>{user?.role}</Text>
+          <Ionicons
+            name="shield-checkmark-outline"
+            size={12}
+            color={colors.gold}
+          />
+          <Text style={styles.roleText}>{user?.role?.toUpperCase()}</Text>
         </View>
       </View>
 
-      <View style={styles.menu}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('BookingsHistory')}
-        >
-          <Text style={styles.menuText}>My Bookings</Text>
-          <Text style={styles.menuArrow}>›</Text>
-        </TouchableOpacity>
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>QUICK ACTIONS</Text>
+        <View style={styles.menu}>
+          {menuItems.map(({ icon, label, onPress }) => (
+            <TouchableOpacity
+              key={label}
+              style={styles.menuItem}
+              onPress={onPress}
+            >
+              <View style={styles.menuLeft}>
+                <View style={styles.menuIconBox}>
+                  <Ionicons name={icon} size={18} color={colors.gold} />
+                </View>
+                <Text style={styles.menuText}>{label}</Text>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={16}
+                color={colors.textDim}
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+        <Ionicons name="log-out-outline" size={18} color={colors.danger} />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -38,52 +84,110 @@ export default function AccountScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb', padding: 24 },
-  heading: { fontSize: 24, fontWeight: 'bold', color: '#111827', marginBottom: 24 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+  container: { flex: 1, backgroundColor: colors.bg, padding: 24 },
+  header: { marginBottom: 24 },
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.gold,
+    letterSpacing: 3,
+    marginBottom: 4,
+  },
+  heading: { fontSize: 28, fontWeight: "800", color: colors.white },
+  profileCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
   },
-  name: { fontSize: 18, fontWeight: '600', color: '#111827', marginBottom: 4 },
-  email: { fontSize: 14, color: '#6b7280', marginBottom: 12 },
+  avatarRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 16,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.inputBg,
+    borderWidth: 2,
+    borderColor: colors.gold,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { fontSize: 24, fontWeight: "800", color: colors.gold },
+  name: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.white,
+    marginBottom: 4,
+  },
+  emailRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  email: { fontSize: 12, color: colors.textMuted },
   roleBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#f3f4f6',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-start",
+    backgroundColor: colors.inputBg,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 20,
   },
-  roleText: { fontSize: 12, color: '#374151', fontWeight: '500', textTransform: 'capitalize' },
+  roleText: {
+    fontSize: 11,
+    color: colors.gold,
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  section: { marginBottom: 24 },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.textDim,
+    letterSpacing: 2,
+    marginBottom: 10,
+  },
   menu: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+    overflow: "hidden",
   },
   menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
   },
-  menuText: { fontSize: 15, color: '#111827' },
-  menuArrow: { fontSize: 20, color: '#9ca3af' },
-  logoutButton: {
-    backgroundColor: '#fef2f2',
-    padding: 14,
+  menuLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
+  menuIconBox: {
+    width: 36,
+    height: 36,
     borderRadius: 10,
-    alignItems: 'center',
+    backgroundColor: colors.inputBg,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  logoutText: { color: '#dc2626', fontWeight: '600', fontSize: 15 },
+  menuText: { fontSize: 15, color: colors.text, fontWeight: "500" },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#1a0a0a",
+    borderWidth: 1,
+    borderColor: "#7f1d1d",
+    padding: 15,
+    borderRadius: 12,
+  },
+  logoutText: { color: colors.danger, fontWeight: "700", fontSize: 15 },
 });

@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 
-const emptyForm = {
-  name: '',
-  email: '',
-  specialties: '',
-  daysOff: '',
-};
+const emptyForm = { name: '', email: '', specialties: '', daysOff: '' };
 
 export default function AdminStaff() {
   const [staff, setStaff] = useState([]);
@@ -22,9 +17,7 @@ export default function AdminStaff() {
     api.get('/staff').then(setStaff);
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async () => {
     setError('');
@@ -34,7 +27,6 @@ export default function AdminStaff() {
       specialties: form.specialties.split(',').map((s) => s.trim()).filter(Boolean),
       daysOff: form.daysOff.split(',').map((s) => s.trim()).filter(Boolean),
     };
-
     if (editingId) {
       const data = await api.put(`/staff/${editingId}`, payload);
       if (data._id) {
@@ -94,129 +86,99 @@ export default function AdminStaff() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">Manage Staff</h1>
-        <Link to="/admin" className="text-sm text-gray-500 hover:text-gray-700">
+    <div className="min-h-screen bg-dark-900">
+      <nav className="bg-dark-800 border-b border-dark-700 px-6 py-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold text-white">Manage Staff</h1>
+        <Link to="/admin" className="text-sm text-dark-400 hover:text-gold-500 transition-colors">
           Back to Dashboard
         </Link>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">All Staff</h2>
+          <h2 className="text-lg font-semibold text-white">All Staff</h2>
           <button
             onClick={() => { resetForm(); setShowForm(true); }}
-            className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700"
+            className="btn-gold text-sm px-4 py-2"
           >
             Add Staff
           </button>
         </div>
 
         {showForm && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h3 className="text-md font-semibold text-gray-800 mb-4">
+          <div className="card-dark p-6 mb-6">
+            <h3 className="text-white font-semibold mb-4">
               {editingId ? 'Edit Staff' : 'New Staff Member'}
             </h3>
             {error && (
-              <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded mb-4">{error}</div>
+              <div className="bg-red-900 bg-opacity-30 border border-red-700 text-red-400 text-sm px-4 py-3 rounded-lg mb-4">
+                {error}
+              </div>
             )}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                />
+                <label className="label-dark">Name</label>
+                <input name="name" value={form.name} onChange={handleChange} className="input-dark" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                />
+                <label className="label-dark">Email</label>
+                <input name="email" value={form.email} onChange={handleChange} className="input-dark" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Specialties (comma separated)
-                </label>
-                <input
-                  name="specialties"
-                  value={form.specialties}
-                  onChange={handleChange}
-                  placeholder="Haircut, Coloring"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                />
+                <label className="label-dark">Specialties (comma separated)</label>
+                <input name="specialties" value={form.specialties} onChange={handleChange} placeholder="Haircut, Coloring" className="input-dark" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Days Off (comma separated)
-                </label>
-                <input
-                  name="daysOff"
-                  value={form.daysOff}
-                  onChange={handleChange}
-                  placeholder="Sat, Sun"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                />
+                <label className="label-dark">Days Off (comma separated)</label>
+                <input name="daysOff" value={form.daysOff} onChange={handleChange} placeholder="Sat, Sun" className="input-dark" />
               </div>
             </div>
             <div className="flex gap-3 mt-4">
-              <button
-                onClick={handleSubmit}
-                className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700"
-              >
+              <button onClick={handleSubmit} className="btn-gold text-sm px-4 py-2">
                 {editingId ? 'Save Changes' : 'Create Staff'}
               </button>
-              <button
-                onClick={resetForm}
-                className="text-sm text-gray-500 hover:text-gray-700"
-              >
+              <button onClick={resetForm} className="text-sm text-dark-400 hover:text-gold-500 transition-colors">
                 Cancel
               </button>
             </div>
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow overflow-hidden mb-10">
+        <div className="card-dark overflow-hidden overflow-x-auto mb-10">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="border-b border-dark-700">
               <tr>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">Name</th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">Email</th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">Specialties</th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">Days Off</th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">Actions</th>
+                {['Name', 'Email', 'Specialties', 'Days Off', 'Actions'].map((h) => (
+                  <th key={h} className="text-left px-6 py-4 text-dark-400 font-medium text-xs tracking-wider uppercase">
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-dark-700">
               {staff.map((member) => (
-                <tr key={member._id}>
-                  <td className="px-6 py-4 text-gray-800">{member.name}</td>
-                  <td className="px-6 py-4 text-gray-500">{member.email}</td>
-                  <td className="px-6 py-4 text-gray-500">{member.specialties.join(', ')}</td>
-                  <td className="px-6 py-4 text-gray-500">{member.daysOff.join(', ')}</td>
+                <tr key={member._id} className="hover:bg-dark-700 transition-colors">
+                  <td className="px-6 py-4 text-white font-medium">{member.name}</td>
+                  <td className="px-6 py-4 text-dark-400">{member.email}</td>
+                  <td className="px-6 py-4 text-dark-400">{member.specialties.join(', ')}</td>
+                  <td className="px-6 py-4 text-dark-400">{member.daysOff.join(', ')}</td>
                   <td className="px-6 py-4">
                     <div className="flex gap-3">
                       <button
                         onClick={() => handleEdit(member)}
-                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                        className="text-xs text-gold-500 hover:text-gold-400 font-medium transition-colors"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => setSelectedStaff(member)}
-                        className="text-xs text-green-600 hover:text-green-800 font-medium"
+                        className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
                       >
                         Set Availability
                       </button>
                       <button
                         onClick={() => handleDelete(member._id)}
-                        className="text-xs text-red-500 hover:text-red-700 font-medium"
+                        className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors"
                       >
                         Delete
                       </button>
@@ -229,46 +191,41 @@ export default function AdminStaff() {
         </div>
 
         {selectedStaff && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-md font-semibold text-gray-800 mb-4">
+          <div className="card-dark p-6">
+            <h3 className="text-white font-semibold mb-2">
               Set Availability for {selectedStaff.name}
             </h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-dark-400 text-sm mb-4">
               Enter a date and comma-separated time slots in HH:MM format.
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <label className="label-dark">Date</label>
                 <input
                   type="date"
                   value={availability.date}
                   min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setAvailability({ ...availability, date: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  className="input-dark"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Time Slots (comma separated)
-                </label>
+                <label className="label-dark">Time Slots (comma separated)</label>
                 <input
                   value={availability.slots}
                   onChange={(e) => setAvailability({ ...availability, slots: e.target.value })}
                   placeholder="09:00, 09:30, 10:00"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  className="input-dark"
                 />
               </div>
             </div>
             <div className="flex gap-3 mt-4">
-              <button
-                onClick={handleSetAvailability}
-                className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700"
-              >
+              <button onClick={handleSetAvailability} className="btn-gold text-sm px-4 py-2">
                 Save Availability
               </button>
               <button
                 onClick={() => setSelectedStaff(null)}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-dark-400 hover:text-gold-500 transition-colors"
               >
                 Cancel
               </button>

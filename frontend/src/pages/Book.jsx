@@ -1,46 +1,62 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
-import Navbar from '../components/Navbar';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
+import Spinner from "../components/Spinner";
+import api from "../services/api";
+import {
+  Clock,
+  DollarSign,
+  User,
+  Scissors,
+  Calendar,
+  CheckCircle,
+  ChevronRight,
+} from "lucide-react";
 
-const STEPS = ['Service', 'Staff', 'Date & Time', 'Confirm'];
+const STEPS = ["Service", "Staff", "Date & Time", "Confirm"];
 
 export default function Book() {
   const { user } = useAuth();
   const navigate = useNavigate();
-
   const [step, setStep] = useState(0);
   const [services, setServices] = useState([]);
   const [staff, setStaff] = useState([]);
   const [slots, setSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchingSlots, setFetchingSlots] = useState(false);
+  const [error, setError] = useState("");
   const [selected, setSelected] = useState({
     service: null,
     staff: null,
-    date: '',
-    timeSlot: '',
-    notes: '',
+    date: "",
+    timeSlot: "",
+    notes: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get('/services').then(setServices);
-    api.get('/staff').then(setStaff);
+    api.get("/services").then(setServices);
+    api.get("/staff").then(setStaff);
   }, []);
 
   useEffect(() => {
     if (selected.staff && selected.date) {
+      setFetchingSlots(true);
       api
-        .get(`/availability?staffId=${selected.staff._id}&date=${selected.date}`)
-        .then((data) => setSlots(data.openSlots || []));
+        .get(
+          `/availability?staffId=${selected.staff._id}&date=${selected.date}`,
+        )
+        .then((data) => {
+          setSlots(data.openSlots || []);
+          setFetchingSlots(false);
+        });
     }
   }, [selected.staff, selected.date]);
 
   const handleConfirm = async () => {
     setLoading(true);
-    setError('');
-    const data = await api.post('/bookings', {
+    setError("");
+    const data = await api.post("/bookings", {
       staff: selected.staff._id,
       service: selected.service._id,
       date: selected.date,
@@ -48,43 +64,63 @@ export default function Book() {
       notes: selected.notes,
     });
     setLoading(false);
-
     if (data._id) {
-      navigate('/bookings');
+      navigate("/bookings");
     } else {
-      setError(data.message || 'Booking failed');
+      setError(data.message || "Booking failed");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar className="bg-white shadow px-6 py-4 flex justify-between items-center">
-        <span className="text-sm text-gray-500">Hi, {user?.name}</span>
-      </Navbar>
+    <div className="min-h-screen bg-dark-900">
+      <Navbar />
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+        <div className="mb-10">
+          <p className="text-gold-500 text-xs font-bold tracking-widest uppercase mb-2">
+            New Appointment
+          </p>
+          <h2 className="text-4xl font-extrabold text-white">Book a Service</h2>
+        </div>
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center mb-10">
           {STEPS.map((label, i) => (
-            <div key={label} className="flex items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  i <= step ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500'
-                }`}
-              >
-                {i + 1}
+            <div
+              key={label}
+              className="flex items-center flex-1 last:flex-none"
+            >
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all ${
+                    i < step
+                      ? "bg-gold-500 border-gold-500 text-dark-900"
+                      : i === step
+                        ? "border-gold-500 text-gold-500"
+                        : "border-dark-600 text-dark-500"
+                  }`}
+                >
+                  {i < step ? <CheckCircle size={18} /> : i + 1}
+                </div>
+                <span
+                  className={`text-xs mt-1.5 font-medium ${i === step ? "text-gold-500" : "text-dark-500"}`}
+                >
+                  {label}
+                </span>
               </div>
-              <span className={`ml-2 text-sm ${i === step ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
-                {label}
-              </span>
-              {i < STEPS.length - 1 && <div className="w-8 h-px bg-gray-300 mx-3" />}
+              {i < STEPS.length - 1 && (
+                <div
+                  className={`flex-1 h-px mx-2 mb-4 transition-all ${i < step ? "bg-gold-500" : "bg-dark-700"}`}
+                />
+              )}
             </div>
           ))}
         </div>
 
         {step === 0 && (
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Select a Service</h3>
-            <div className="grid grid-cols-1 gap-3">
+            <h3 className="text-white font-bold text-lg mb-5 flex items-center gap-2">
+              <Scissors size={18} className="text-gold-500" /> Select a Service
+            </h3>
+            <div className="space-y-3">
               {services.map((service) => (
                 <div
                   key={service._id}
@@ -92,18 +128,35 @@ export default function Book() {
                     setSelected({ ...selected, service });
                     setStep(1);
                   }}
-                  className={`bg-white rounded-lg shadow p-4 cursor-pointer border-2 ${
+                  className={`card-dark p-5 cursor-pointer transition-all duration-200 hover:border-gold-500 group ${
                     selected.service?._id === service._id
-                      ? 'border-gray-900'
-                      : 'border-transparent'
-                  } hover:border-gray-400`}
+                      ? "border-gold-500"
+                      : ""
+                  }`}
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-gray-800">{service.name}</p>
-                      <p className="text-sm text-gray-500">{service.duration} mins</p>
+                      <p className="text-white font-semibold group-hover:text-gold-400 transition-colors">
+                        {service.name}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="flex items-center gap-1 text-dark-500 text-xs">
+                          <Clock size={11} /> {service.duration} mins
+                        </span>
+                        <span className="text-dark-600 text-xs">
+                          {service.category}
+                        </span>
+                      </div>
                     </div>
-                    <span className="font-bold text-gray-900">${service.price}</span>
+                    <div className="text-right">
+                      <span className="text-gold-500 font-extrabold text-xl">
+                        ${service.price}
+                      </span>
+                      <ChevronRight
+                        size={16}
+                        className="text-dark-600 group-hover:text-gold-500 transition-colors ml-auto mt-1"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -113,8 +166,10 @@ export default function Book() {
 
         {step === 1 && (
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Select a Staff Member</h3>
-            <div className="grid grid-cols-1 gap-3">
+            <h3 className="text-white font-bold text-lg mb-5 flex items-center gap-2">
+              <User size={18} className="text-gold-500" /> Select a Staff Member
+            </h3>
+            <div className="space-y-3">
               {staff.map((member) => (
                 <div
                   key={member._id}
@@ -122,60 +177,89 @@ export default function Book() {
                     setSelected({ ...selected, staff: member });
                     setStep(2);
                   }}
-                  className={`bg-white rounded-lg shadow p-4 cursor-pointer border-2 ${
-                    selected.staff?._id === member._id
-                      ? 'border-gray-900'
-                      : 'border-transparent'
-                  } hover:border-gray-400`}
+                  className={`card-dark p-5 cursor-pointer transition-all duration-200 hover:border-gold-500 group ${
+                    selected.staff?._id === member._id ? "border-gold-500" : ""
+                  }`}
                 >
-                  <p className="font-medium text-gray-800">{member.name}</p>
-                  <p className="text-sm text-gray-500">{member.specialties.join(', ')}</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-dark-700 border-2 border-gold-500 flex items-center justify-center text-gold-500 font-extrabold text-lg flex-shrink-0">
+                      {member.name.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-semibold group-hover:text-gold-400 transition-colors">
+                        {member.name}
+                      </p>
+                      <p className="text-dark-400 text-sm mt-0.5">
+                        {member.specialties.join(", ")}
+                      </p>
+                    </div>
+                    <ChevronRight
+                      size={16}
+                      className="text-dark-600 group-hover:text-gold-500 transition-colors"
+                    />
+                  </div>
                 </div>
               ))}
             </div>
             <button
               onClick={() => setStep(0)}
-              className="mt-4 text-sm text-gray-500 hover:text-gray-700"
+              className="mt-6 text-dark-400 hover:text-gold-500 text-sm transition-colors flex items-center gap-1"
             >
-              Back
+              ← Back
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pick a Date and Time</h3>
-            <div className="bg-white rounded-lg shadow p-6 space-y-4">
+            <h3 className="text-white font-bold text-lg mb-5 flex items-center gap-2">
+              <Calendar size={18} className="text-gold-500" /> Pick a Date and
+              Time
+            </h3>
+            <div className="card-dark p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <label className="label-dark flex items-center gap-1.5">
+                  <Calendar size={13} className="text-gold-500" /> Date
+                </label>
                 <input
                   type="date"
                   value={selected.date}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toISOString().split("T")[0]}
                   onChange={(e) =>
-                    setSelected({ ...selected, date: e.target.value, timeSlot: '' })
+                    setSelected({
+                      ...selected,
+                      date: e.target.value,
+                      timeSlot: "",
+                    })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  className="input-dark"
                 />
               </div>
 
               {selected.date && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Available Slots
+                  <label className="label-dark flex items-center gap-1.5">
+                    <Clock size={13} className="text-gold-500" /> Available
+                    Slots
                   </label>
-                  {slots.length === 0 ? (
-                    <p className="text-sm text-gray-500">No available slots for this date.</p>
+                  {fetchingSlots ? (
+                    <Spinner />
+                  ) : slots.length === 0 ? (
+                    <p className="text-dark-400 text-sm py-4 text-center border border-dark-700 rounded-lg">
+                      No available slots for this date.
+                    </p>
                   ) : (
                     <div className="grid grid-cols-4 gap-2">
                       {slots.map((slot) => (
                         <button
                           key={slot}
-                          onClick={() => setSelected({ ...selected, timeSlot: slot })}
-                          className={`py-2 text-sm rounded-lg border ${
+                          onClick={() =>
+                            setSelected({ ...selected, timeSlot: slot })
+                          }
+                          className={`py-2.5 text-sm rounded-lg border font-medium transition-all ${
                             selected.timeSlot === slot
-                              ? 'bg-gray-900 text-white border-gray-900'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
+                              ? "bg-gold-500 text-dark-900 border-gold-500"
+                              : "bg-transparent text-dark-300 border-dark-600 hover:border-gold-500 hover:text-gold-500"
                           }`}
                         >
                           {slot}
@@ -187,30 +271,31 @@ export default function Book() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes (optional)
-                </label>
+                <label className="label-dark">Notes (optional)</label>
                 <textarea
                   value={selected.notes}
-                  onChange={(e) => setSelected({ ...selected, notes: e.target.value })}
+                  onChange={(e) =>
+                    setSelected({ ...selected, notes: e.target.value })
+                  }
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  placeholder="Any special requests..."
+                  className="input-dark resize-none"
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex items-center gap-4 pt-2 border-t border-dark-700">
                 <button
                   onClick={() => setStep(1)}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-dark-400 hover:text-gold-500 text-sm transition-colors"
                 >
-                  Back
+                  ← Back
                 </button>
                 <button
                   onClick={() => setStep(3)}
                   disabled={!selected.date || !selected.timeSlot}
-                  className="bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-50"
+                  className="btn-gold disabled:opacity-40 inline-flex items-center gap-2"
                 >
-                  Continue
+                  Continue <ChevronRight size={14} />
                 </button>
               </div>
             </div>
@@ -219,56 +304,92 @@ export default function Book() {
 
         {step === 3 && (
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Booking</h3>
-            <div className="bg-white rounded-lg shadow p-6 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Service</span>
-                <span className="font-medium text-gray-800">{selected.service?.name}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Staff</span>
-                <span className="font-medium text-gray-800">{selected.staff?.name}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Date</span>
-                <span className="font-medium text-gray-800">{selected.date}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Time</span>
-                <span className="font-medium text-gray-800">{selected.timeSlot}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Price</span>
-                <span className="font-bold text-gray-900">${selected.service?.price}</span>
-              </div>
-              {selected.notes && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Notes</span>
-                  <span className="font-medium text-gray-800">{selected.notes}</span>
+            <h3 className="text-white font-bold text-lg mb-5 flex items-center gap-2">
+              <CheckCircle size={18} className="text-gold-500" /> Confirm
+              Booking
+            </h3>
+            <div className="card-dark p-6 mb-4">
+              <div className="flex items-center gap-4 pb-5 mb-5 border-b border-dark-700">
+                <div className="w-12 h-12 rounded-xl bg-dark-700 border border-dark-600 flex items-center justify-center">
+                  <Scissors size={20} className="text-gold-500" />
                 </div>
-              )}
-
-              {error && (
-                <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded">
-                  {error}
+                <div>
+                  <p className="text-white font-bold text-lg">
+                    {selected.service?.name}
+                  </p>
+                  <p className="text-dark-400 text-sm">
+                    with {selected.staff?.name}
+                  </p>
                 </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => setStep(2)}
-                  className="text-sm text-gray-500 hover:text-gray-700"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleConfirm}
-                  disabled={loading}
-                  className="bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-50"
-                >
-                  {loading ? 'Booking...' : 'Confirm Booking'}
-                </button>
               </div>
+
+              {[
+                { icon: Calendar, label: "Date", value: selected.date },
+                { icon: Clock, label: "Time", value: selected.timeSlot },
+                {
+                  icon: Clock,
+                  label: "Duration",
+                  value: `${selected.service?.duration} mins`,
+                },
+              ].map(({ icon: Icon, label, value }) => (
+                <div
+                  key={label}
+                  className="flex justify-between items-center py-3 border-b border-dark-700 last:border-0"
+                >
+                  <span className="flex items-center gap-2 text-dark-400 text-sm">
+                    <Icon size={14} className="text-dark-500" /> {label}
+                  </span>
+                  <span className="text-white text-sm font-medium">
+                    {value}
+                  </span>
+                </div>
+              ))}
+
+              <div className="flex justify-between items-center pt-5 mt-2">
+                <span className="flex items-center gap-2 text-dark-300 font-semibold">
+                  <DollarSign size={16} className="text-gold-500" /> Total
+                </span>
+                <span className="text-gold-500 font-extrabold text-2xl">
+                  ${selected.service?.price}
+                </span>
+              </div>
+            </div>
+
+            {selected.notes && (
+              <div className="card-dark p-4 mb-4">
+                <p className="text-dark-500 text-xs font-semibold uppercase tracking-wider mb-2">
+                  Notes
+                </p>
+                <p className="text-dark-300 text-sm">{selected.notes}</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-900 bg-opacity-30 border border-red-700 text-red-400 text-sm px-4 py-3 rounded-lg mb-4">
+                {error}
+              </div>
+            )}
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setStep(2)}
+                className="text-dark-400 hover:text-gold-500 text-sm transition-colors"
+              >
+                ← Back
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={loading}
+                className="btn-gold disabled:opacity-40 inline-flex items-center gap-2"
+              >
+                {loading ? (
+                  "Confirming..."
+                ) : (
+                  <>
+                    <CheckCircle size={16} /> Confirm Booking
+                  </>
+                )}
+              </button>
             </div>
           </div>
         )}

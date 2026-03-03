@@ -1,66 +1,68 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import Navbar from '../components/Navbar';
-import Spinner from '../components/Spinner';
-import api from '../services/api';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Calendar, Clock, DollarSign, User, Plus, XCircle } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Spinner from "../components/Spinner";
+import api from "../services/api";
 
 export default function Bookings() {
-  const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get('/bookings/my')
+    api
+      .get("/bookings/my")
       .then((data) => {
-        if (Array.isArray(data)) {
-          setBookings(data);
-        } else {
-          setError('Failed to load bookings');
-        }
+        setBookings(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => {
-        setError('Failed to load bookings');
+        setError("Failed to load bookings");
         setLoading(false);
       });
   }, []);
 
   const handleCancel = async (id) => {
     const data = await api.put(`/bookings/${id}/cancel`);
-    if (data.booking) {
+    if (data.booking)
       setBookings(bookings.map((b) => (b._id === id ? data.booking : b)));
-    } else {
-      setError('Failed to cancel booking');
-    }
   };
 
-  const statusColor = (status) => {
+  const statusStyle = (status) => {
     switch (status) {
-      case 'confirmed': return 'text-green-600 bg-green-50';
-      case 'cancelled': return 'text-red-600 bg-red-50';
-      case 'completed': return 'text-blue-600 bg-blue-50';
-      default: return 'text-yellow-600 bg-yellow-50';
+      case "confirmed":
+        return "text-emerald-400 bg-emerald-900 bg-opacity-30 border-emerald-800";
+      case "cancelled":
+        return "text-red-400 bg-red-900 bg-opacity-30 border-red-800";
+      case "completed":
+        return "text-blue-400 bg-blue-900 bg-opacity-30 border-blue-800";
+      default:
+        return "text-gold-400 bg-gold-900 bg-opacity-20 border-gold-800";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-dark-900">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">My Bookings</h2>
+      <div className="max-w-3xl mx-auto px-6 py-16">
+        <div className="flex justify-between items-end mb-12">
+          <div>
+            <p className="text-gold-500 text-xs font-bold tracking-widest uppercase mb-2">
+              Your Schedule
+            </p>
+            <h2 className="text-4xl font-extrabold text-white">My Bookings</h2>
+          </div>
           <Link
             to="/book"
-            className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700"
+            className="btn-gold inline-flex items-center gap-2 text-sm px-4 py-2.5"
           >
-            New Booking
+            <Plus size={15} /> New Booking
           </Link>
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-6">
+          <div className="bg-red-900 bg-opacity-30 border border-red-800 text-red-400 text-sm px-4 py-3 rounded-lg mb-6">
             {error}
           </div>
         )}
@@ -68,47 +70,91 @@ export default function Bookings() {
         {loading ? (
           <Spinner />
         ) : bookings.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-gray-500 mb-4">You have no bookings yet.</p>
+          <div className="card-dark p-16 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-dark-700 border border-dark-600 flex items-center justify-center mx-auto mb-6">
+              <Calendar size={28} className="text-dark-500" />
+            </div>
+            <p className="text-white font-bold text-xl mb-2">No bookings yet</p>
+            <p className="text-dark-400 text-sm mb-8">
+              Book your first appointment and get started.
+            </p>
             <Link
               to="/book"
-              className="bg-gray-900 text-white px-5 py-2 rounded-lg text-sm hover:bg-gray-700"
+              className="btn-gold inline-flex items-center gap-2"
             >
-              Make Your First Booking
+              <Plus size={15} /> Make Your First Booking
             </Link>
           </div>
         ) : (
           <div className="space-y-4">
             {bookings.map((booking) => (
-              <div key={booking._id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold text-gray-800">{booking.service?.name}</p>
-                    <p className="text-sm text-gray-500">with {booking.staff?.name}</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {booking.date} at {booking.timeSlot}
-                    </p>
-                    {booking.notes && (
-                      <p className="text-sm text-gray-400 mt-1">Note: {booking.notes}</p>
-                    )}
+              <div
+                key={booking._id}
+                className="card-dark p-6 hover:border-dark-600 transition-colors"
+              >
+                <div className="flex justify-between items-start mb-5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-dark-700 border border-dark-600 flex items-center justify-center flex-shrink-0">
+                      <Calendar size={20} className="text-gold-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">
+                        {booking.service?.name}
+                      </h3>
+                      <p className="text-dark-400 text-sm flex items-center gap-1.5 mt-0.5">
+                        <User size={12} /> {booking.staff?.name}
+                      </p>
+                    </div>
                   </div>
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusColor(booking.status)}`}>
+                  <span
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${statusStyle(booking.status)}`}
+                  >
                     {booking.status}
                   </span>
                 </div>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="text-sm font-medium text-gray-700">
-                    ${booking.service?.price}
-                  </span>
-                  {booking.status === 'pending' || booking.status === 'confirmed' ? (
-                    <button
-                      onClick={() => handleCancel(booking._id)}
-                      className="text-sm text-red-500 hover:text-red-700"
-                    >
-                      Cancel Booking
-                    </button>
-                  ) : null}
+
+                <div className="grid grid-cols-3 gap-4 bg-dark-700 rounded-xl p-4 mb-4">
+                  <div>
+                    <p className="text-dark-500 text-xs flex items-center gap-1 mb-1">
+                      <Calendar size={10} /> Date
+                    </p>
+                    <p className="text-white text-sm font-semibold">
+                      {booking.date}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-dark-500 text-xs flex items-center gap-1 mb-1">
+                      <Clock size={10} /> Time
+                    </p>
+                    <p className="text-white text-sm font-semibold">
+                      {booking.timeSlot}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-dark-500 text-xs flex items-center gap-1 mb-1">
+                      <DollarSign size={10} /> Price
+                    </p>
+                    <p className="text-gold-500 text-sm font-bold">
+                      ${booking.service?.price}
+                    </p>
+                  </div>
                 </div>
+
+                {booking.notes && (
+                  <p className="text-dark-500 text-xs italic mb-4">
+                    "{booking.notes}"
+                  </p>
+                )}
+
+                {(booking.status === "pending" ||
+                  booking.status === "confirmed") && (
+                  <button
+                    onClick={() => handleCancel(booking._id)}
+                    className="inline-flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    <XCircle size={14} /> Cancel Booking
+                  </button>
+                )}
               </div>
             ))}
           </div>

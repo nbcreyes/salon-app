@@ -1,5 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../theme";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -7,48 +15,154 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Salon App</Text>
-        <Text style={styles.subtitle}>Book your next appointment</Text>
+        <View style={styles.badge}>
+          <View style={styles.badgeDot} />
+          <Text style={styles.badgeText}>NOW ACCEPTING BOOKINGS</Text>
+        </View>
+
+        <Text style={styles.title}>
+          LUXE {"\n"}
+          <Text style={styles.titleAccent}>SALON</Text>
+        </Text>
+        <Text style={styles.subtitle}>
+          Premium grooming services delivered by expert stylists.
+        </Text>
+
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('Services')}
+          style={styles.buttonGold}
+          onPress={() => navigation.navigate("Book")}
         >
-          <Text style={styles.buttonText}>View Services</Text>
+          <Ionicons name="calendar-outline" size={18} color={colors.bg} />
+          <Text style={styles.buttonGoldText}>Book Appointment</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={styles.outlineButton}
-          onPress={() => navigation.navigate('Book')}
+          style={styles.buttonOutline}
+          onPress={() => navigation.navigate("Services")}
         >
-          <Text style={styles.outlineButtonText}>Book Now</Text>
+          <Ionicons name="list-outline" size={18} color={colors.gold} />
+          <Text style={styles.buttonOutlineText}>View Services</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.statsRow}>
+        {[
+          { icon: "star", value: "4.9★", label: "Rating" },
+          { icon: "people", value: "2,000+", label: "Clients" },
+          { icon: "time", value: "5+ Yrs", label: "Experience" },
+        ].map(({ icon, value, label }) => (
+          <View key={label} style={styles.statCard}>
+            <Ionicons
+              name={icon}
+              size={18}
+              color={colors.gold}
+              style={{ marginBottom: 6 }}
+            />
+            <Text style={styles.statValue}>{value}</Text>
+            <Text style={styles.statLabel}>{label}</Text>
+          </View>
+        ))}
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#111827', marginBottom: 8 },
-  subtitle: { fontSize: 16, color: '#6b7280', marginBottom: 32 },
-  button: {
-    backgroundColor: '#111827',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginBottom: 12,
-    width: '100%',
-    alignItems: 'center',
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 28,
   },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 15 },
-  outlineButton: {
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#111827',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 10,
-    width: '100%',
-    alignItems: 'center',
+    borderColor: colors.cardBorder,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    marginBottom: 24,
   },
-  outlineButtonText: { color: '#111827', fontWeight: '600', fontSize: 15 },
+  badgeDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: colors.gold,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.gold,
+    letterSpacing: 2,
+  },
+  title: {
+    fontSize: 48,
+    fontWeight: "800",
+    color: colors.white,
+    textAlign: "center",
+    lineHeight: 52,
+    marginBottom: 16,
+  },
+  titleAccent: { color: colors.gold },
+  subtitle: {
+    fontSize: 15,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginBottom: 36,
+    lineHeight: 22,
+    paddingHorizontal: 8,
+  },
+  buttonGold: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.gold,
+    paddingHorizontal: 28,
+    paddingVertical: 15,
+    borderRadius: 12,
+    marginBottom: 12,
+    width: "100%",
+    justifyContent: "center",
+  },
+  buttonGoldText: { color: colors.bg, fontWeight: "700", fontSize: 15 },
+  buttonOutline: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.gold,
+    paddingHorizontal: 28,
+    paddingVertical: 15,
+    borderRadius: 12,
+    width: "100%",
+    justifyContent: "center",
+  },
+  buttonOutlineText: { color: colors.gold, fontWeight: "700", fontSize: 15 },
+  statsRow: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: colors.divider,
+    padding: 16,
+    gap: 8,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+  },
+  statValue: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.white,
+    marginBottom: 2,
+  },
+  statLabel: { fontSize: 11, color: colors.textMuted },
 });
