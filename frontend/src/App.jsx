@@ -8,6 +8,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Book from "./pages/Book";
 import Bookings from "./pages/Bookings";
 import Admin from "./pages/Admin";
+import AdminServices from "./pages/AdminServices";
+import AdminStaff from "./pages/AdminStaff";
 
 export default function App() {
   return (
@@ -39,6 +41,22 @@ export default function App() {
           element={
             <ProtectedRoute role="admin">
               <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/services"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminServices />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/staff"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminStaff />
             </ProtectedRoute>
           }
         />
