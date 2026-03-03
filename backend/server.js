@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const authRoutes = require('./src/routes/authRoutes');
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'Salon API is running' });
 });
+
+app.use('/api/auth', authRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
