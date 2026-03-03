@@ -76,7 +76,7 @@ const seed = async () => {
       customer: users[1]._id,
       staff: staff[0]._id,
       service: services[0]._id,
-      date: '2024-12-20',
+      date: '2026-03-10',
       timeSlot: '10:00',
       status: 'confirmed',
       notes: 'First time customer',
@@ -85,7 +85,7 @@ const seed = async () => {
       customer: users[2]._id,
       staff: staff[1]._id,
       service: services[1]._id,
-      date: '2024-12-20',
+      date: '2026-03-10',
       timeSlot: '11:00',
       status: 'pending',
       notes: '',
@@ -96,13 +96,13 @@ const seed = async () => {
   await Availability.insertMany([
     {
       staff: staff[0]._id,
-      date: '2024-12-20',
+      date: '2026-03-10',
       slots: ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00'],
       bookedSlots: ['10:00'],
     },
     {
       staff: staff[1]._id,
-      date: '2024-12-20',
+      date: '2026-03-10',
       slots: ['10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00', '14:30'],
       bookedSlots: ['11:00'],
     },
