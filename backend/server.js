@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./src/routes/authRoutes');
+const serviceRoutes = require('./src/routes/serviceRoutes');
+const staffRoutes = require('./src/routes/staffRoutes');
+const bookingRoutes = require('./src/routes/bookingRoutes');
+const availabilityRoutes = require('./src/routes/availabilityRoutes');
 
 dotenv.config();
 
@@ -16,6 +20,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/availability', availabilityRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
